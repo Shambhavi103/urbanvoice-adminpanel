@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin Portal - Dark Future</title>
+  <style>
+    /* --- 1. CORE VARIABLES --- */
+    :root {
+      --bg-deep: transparent;
+      --glow-orange: #FF5C16;
+      --glow-purple: #d075ff;
+      --glass-bg: rgba(0, 0, 0, 0.5);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+
+      /* --- STATUS COLORS --- */
+      --col-submitted: #3b82f6;
+      /* Blue */
+      --col-ongoing: #eab308;
+      /* Yellow */
+      --col-resolved: #22c55e;
+      /* Green */
+      --col-danger: #ef4444;
+      /* Red for Logout */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: #060a13;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      letter-spacing: -0.01em;
+    }
+
+    /* --- LOADER & LOGO --- */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-deep);
+      z-index: 9998;
+      transition: opacity 1s ease-out;
+      pointer-events: none;
+    }
+
+    #main-logo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      z-index: 9999;
+      filter: drop-shadow(0 4px 12px rgba(255, 92, 22, 0.4));
+      /* Orange glow inspired by MetaMask fox */
+      transition: all 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    @keyframes heartbeat {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      15% {
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      30% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      45% {
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    .logo-beating {
+      animation: heartbeat 2s infinite;
+    }
+
+    /* Loaded State - Smoother transition inspired by MetaMask loading */
+    body.loaded #loader-overlay {
+      opacity: 0;
+    }
+
+    body.loaded #main-logo {
+      top: 24px;
+      left: 24px;
+      width: 48px;
+      transform: translate(0, 0);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    /* --- LOGIN VIEW --- */
+    #login-view {
+      display: none;
+      height: 100vh;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      background: url('../bg_system.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .login-title {
+      font-size: 4rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.05em;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 0;
+    }
+
+    .login-title img {
+      height: 5rem;
+      width: auto;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeInUp 0.8s ease;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 50px 30px;
+    }
+
+    .login-box h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-box .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-input {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      padding: 18px 20px;
+      border-radius: 12px;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .login-input:focus {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #ffffff;
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .login-input::placeholder {
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: none;
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #FF5C16 0%, #FFA680 100%);
+      /* Orange gradient inspo */
+      border: none;
+      padding: 18px 20px;
+      border-radius: 16px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 10px;
+      box-shadow: 0 10px 20px -5px rgba(255, 92, 22, 0.3);
+      letter-spacing: 0.05em;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 25px -5px rgba(255, 92, 22, 0.4);
+    }
+
+    /* --- DASHBOARD VIEW --- */
+    #dashboard-view {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      margin: 80px auto 40px auto;
+      padding: 0 24px;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- SHARED STYLES --- */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      width: 100%;
+    }
+
+    h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-box {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+      transition: box-shadow 0.2s;
+    }
+
+    .stat-box:hover {
+      transform: none;
+      background: rgba(208, 117, 255, 0.08);
+      box-shadow: 0 4px 12px rgba(208, 117, 255, 0.2);
+      /* Purple hover glow */
+    }
+
+    .stat-number {
+      display: block;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .st-submitted {
+      color: var(--col-submitted);
+      text-shadow: none;
+    }
+
+    .st-ongoing {
+      color: var(--col-ongoing);
+      text-shadow: none;
+    }
+
+    .st-resolved {
+      color: var(--col-resolved);
+      text-shadow: none;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 20px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: rgba(208, 117, 255, 0.05);
+    }
+
+    /* Status Selector */
+    .status-select-wrapper {
+      position: relative;
+      width: 130px;
+    }
+
+    .status-select {
+      appearance: none;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      outline: none;
+      color: #fff;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s ease;
+    }
+
+    /* Badge-style coloring for statuses */
+    .bg-submitted {
+      background-color: #e1f0fa;
+      color: var(--col-submitted);
+    }
+
+    .bg-ongoing {
+      background-color: #fef0db;
+      color: var(--col-ongoing);
+    }
+
+    .bg-resolved {
+      background-color: #e6f6eb;
+      color: var(--col-resolved);
+    }
+
+    /* Header Buttons (Refresh & Logout) */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .refresh-btn {
+      background: rgba(208, 117, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(208, 117, 255, 0.2);
+      box-shadow: 0 4px 6px -1px rgba(208, 117, 255, 0.2);
+    }
+
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--col-danger);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Toast - Inspired by MetaMask notifications */
+    #toast-box {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: #1A1A1A;
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--col-submitted);
+      color: var(--text-main);
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .toast.hide {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: 0.3s;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      #dashboard-view {
+        margin-top: 100px;
+      }
+
+      body.loaded #main-logo {
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loader-overlay"></div>
+  <div id="toast-box"></div>
+
+  <div id="login-view">
+    <h1 class="login-title">
+      <img src="download-removebg-preview.png" alt="Logo">
+      UrbanVoice
+    </h1>
+    <div class="login-box">
+      <div style="text-align:center;">
+        <h2>Access Control</h2>
+        <p class="subtitle">Identify yourself, Administrator.</p>
+      </div>
+      <input type="text" id="username" class="login-input" placeholder="Admin ID" autocomplete="off">
+      <input type="password" id="password" class="login-input" placeholder="Secure Key">
+      <button class="login-btn" onclick="attemptLogin()">AUTHENTICATE</button>
+    </div>
+  </div>
+
+  <div id="dashboard-view" class="app-container">
+    <div class="glass-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div>
+          <h2>Admin Portal</h2>
+          <p class="subtitle">Live Complaint Management System</p>
+        </div>
+        <div class="header-actions">
+          <button class="refresh-btn" onclick="fetchData()">↻ Refresh</button>
+          <button class="logout-btn" onclick="logout()">Logout ⏻</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-number st-submitted" id="count-submitted">0</span>
+          <span class="stat-label">Submitted</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number st-ongoing" id="count-ongoing">0</span>
+          <span class="stat-label">Ongoing</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number st-resolved" id="count-resolved">0</span>
+          <span class="stat-label">Resolved</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th width="10%">ID</th>
+              <th width="15%">Date</th>
+              <th width="15%">User</th>
+              <th width="40%">Complaint Details</th>
+              <th width="20%">Status Update</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);">Loading data from
+                Sheet...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- CONFIGURATION --- 
+
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbw5uwC-fpVQ5RbhQo3Ig0sibzvJZku2e31P0F3NZmEqynIabKGfPxqOjvookQGGtWq8/exec";
+
+    // DEPARTMENT REGISTRY AND CREDENTIALS
+    const DEPARTMENTS = {
+      "road": { id: "admin_road", pass: "road123", name: "Road & Highway Department" },
+      "water": { id: "admin_water", pass: "water123", name: "Water Department" },
+      "electricity": { id: "admin_elec", pass: "elec123", name: "Electricity Department" },
+      "health": { id: "admin_health", pass: "health123", name: "Health & Sanitation Department" },
+      "master": { id: "admin_master", pass: "master123", name: "Master Admin (All Departments)" }
+    };
+
+    let currentAdminDept = null;
+    let currentAdminName = null;
+
+    // Startup Animation
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("main-logo").classList.remove("logo-beating");
+        document.body.classList.add("loaded");
+        // Show Login
+        document.getElementById("login-view").style.display = "flex";
+      }, 1500);
+    });
+
+    // --- LOGIN LOGIC ---
+    function attemptLogin() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+      const btn = document.querySelector(".login-btn");
+
+      let authenticatedDept = null;
+
+      // Check credentials against registry
+      for (const key in DEPARTMENTS) {
+        if (DEPARTMENTS[key].id === u && DEPARTMENTS[key].pass === p) {
+          authenticatedDept = key;
+          currentAdminName = DEPARTMENTS[key].name;
+          break;
+        }
+      }
+
+      if (authenticatedDept) {
+        currentAdminDept = authenticatedDept;
+        btn.innerHTML = "ACCESS GRANTED";
+        btn.style.background = "#22c55e"; // Green
+
+        // Update UI with department name
+        document.querySelector("#dashboard-view h2").innerText = currentAdminName + " Portal";
+
+        setTimeout(() => {
+          document.getElementById("login-view").style.display = "none";
+          document.getElementById("dashboard-view").style.display = "block";
+          showToast("Success", "Welcome back, " + currentAdminName + ".");
+          fetchData();
+        }, 500);
+      } else {
+        showToast("Error", "Invalid Credentials.");
+        btn.style.background = "#ef4444"; // Red
+        setTimeout(() => {
+          btn.style.background = "linear-gradient(135deg, #FF5C16 0%, #FFA680 100%)"; // Reset to orange
+        }, 1000);
+      }
+    }
+
+    // Allow 'Enter' key for login
+    document.getElementById("password").addEventListener("keypress", function (event) {
+      if (event.key === "Enter") attemptLogin();
+    });
+
+    // --- LOGOUT LOGIC ---
+    function logout() {
+      // Hide Dashboard, Show Login
+      document.getElementById("dashboard-view").style.display = "none";
+      document.getElementById("login-view").style.display = "flex";
+
+      // Reset Inputs and Button
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      const btn = document.querySelector(".login-btn");
+      btn.innerHTML = "AUTHENTICATE";
+      btn.style.background = "linear-gradient(135deg, #FF5C16 0%, #FFA680 100%)";
+
+      // Clear session data
+      currentAdminDept = null;
+      currentAdminName = null;
+      document.querySelector("#dashboard-view h2").innerText = "Admin Portal";
+
+      showToast("Info", "Session Terminated.");
+    }
+
+    // --- DASHBOARD DATA LOGIC ---
+
+    async function fetchData() {
+      if (SHEET_API_URL.includes("PASTE_YOUR")) {
+        showToast("Config Error", "Please paste your Sheet API URL in the code.");
+        return;
+      }
+
+      const tbody = document.getElementById("tableBody");
+
+      try {
+        const response = await fetch(SHEET_API_URL);
+        const data = await response.json();
+
+        let counts = { submitted: 0, ongoing: 0, resolved: 0 };
+        tbody.innerHTML = "";
+
+        data.forEach(row => {
+          // FILTERING LOGIC: Determine if this row belongs to the current department
+          // We assume the Google Sheet has a 'department' column, or we try to guess from the complaint text
+          let rowDept = (row.department || "").toLowerCase().trim();
+
+          // Basic keyword matching if department column is missing or empty
+          if (!rowDept) {
+            const textToSearch = (row.complaint || "").toLowerCase();
+            if (textToSearch.includes("road") || textToSearch.includes("pothole") || textToSearch.includes("highway") || textToSearch.includes("street")) rowDept = "road";
+            else if (textToSearch.includes("water") || textToSearch.includes("pipe") || textToSearch.includes("leak") || textToSearch.includes("drain")) rowDept = "water";
+            else if (textToSearch.includes("electricity") || textToSearch.includes("power") || textToSearch.includes("wire") || textToSearch.includes("light")) rowDept = "electricity";
+            else if (textToSearch.includes("health") || textToSearch.includes("garbage") || textToSearch.includes("waste") || textToSearch.includes("sanitation")) rowDept = "health";
+            else rowDept = "other"; // Cannot determine
+          }
+
+          // Apply filter: If not master admin, and row department doesn't match current admin department, skip this row
+          if (currentAdminDept !== "master" && rowDept !== currentAdminDept) {
+            // Note: If the row's department is 'other' (unmatched), we might want to show it to all or master only.
+            // Currently showing only if it explicitly matches, so 'other' is skipped unless master.
+            return;
+          }
+
+          let statusKey = row.status ? row.status.toLowerCase().trim() : "submitted";
+          if (!['submitted', 'ongoing', 'resolved'].includes(statusKey)) statusKey = 'submitted';
+
+          counts[statusKey]++;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+          <td style="color: var(--glow-purple); font-weight:bold;">#${row.id}</td>
+          <td style="color: var(--text-muted); font-size: 0.85rem;">${row.date || 'N/A'}</td>
+          <td>${row.name}</td>
+          <td>
+            <div style="margin-bottom: 4px;">${row.complaint}</div>
+            ${currentAdminDept === 'master' ? `<span style="font-size: 0.75rem; color: var(--glow-orange); background: rgba(255, 92, 22, 0.1); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${rowDept}</span>` : ''}
+          </td>
+          <td>
+            <div class="status-select-wrapper">
+              <select class="status-select bg-${statusKey}" onchange="updateStatus('${row.id}', this)">
+                <option value="submitted" ${statusKey === 'submitted' ? 'selected' : ''}>Submitted</option>
+                <option value="ongoing" ${statusKey === 'ongoing' ? 'selected' : ''}>Ongoing</option>
+                <option value="resolved" ${statusKey === 'resolved' ? 'selected' : ''}>Resolved</option>
+              </select>
+            </div>
+          </td>
+        `;
+          tbody.appendChild(tr);
+        });
+
+        if (counts.submitted === 0 && counts.ongoing === 0 && counts.resolved === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 40px; color: var(--text-muted);">No complaints found for your department.</td></tr>`;
+        }
+
+        animateValue("count-submitted", counts.submitted);
+        animateValue("count-ongoing", counts.ongoing);
+        animateValue("count-resolved", counts.resolved);
+
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">Error loading data. Check console.</td></tr>`;
+        showToast("Error", "Failed to fetch data.");
+      }
+    }
+
+    async function updateStatus(id, selectElement) {
+      const newStatus = selectElement.value;
+      selectElement.className = `status-select bg-${newStatus}`;
+      selectElement.disabled = true;
+
+      // Universal GET update to bypass CORS/Security
+      const updateUrl = `${SHEET_API_URL}?action=update&id=${encodeURIComponent(id)}&status=${encodeURIComponent(newStatus)}`;
+
+      try {
+        showToast("Syncing", "Updating Google Sheet...");
+
+        const response = await fetch(updateUrl);
+        const result = await response.json();
+
+        if (result.status === "success") {
+          showToast("Success", `Status updated to ${newStatus.toUpperCase()}`);
+          setTimeout(fetchData, 500);
+        } else {
+          throw new Error(result.message || "Sheet returned error");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Error", "Failed to update Sheet.");
+        selectElement.disabled = false;
+      }
+    }
+
+    function animateValue(id, end) {
+      const obj = document.getElementById(id);
+      if (!obj) return;
+      const start = parseInt(obj.innerText);
+      if (start === end) return;
+      let current = start;
+      const step = end > start ? 1 : -1;
+      const timer = setInterval(() => {
+        current += step;
+        obj.innerText = current;
+        if (current === end) clearInterval(timer);
+      }, 50);
+    }
+
+    function showToast(title, msg) {
+      const box = document.getElementById("toast-box");
+      const toast = document.createElement("div");
+      const icon = title === "Success" ? "✅" : (title === "Error" ? "⚠️" : "⏳");
+      toast.className = "toast";
+      if (title === "Error") toast.style.borderLeftColor = "#ef4444";
+      if (title === "Syncing") toast.style.borderLeftColor = "#3b82f6";
+      toast.innerHTML = `<span style="font-size:1.2rem">${icon}</span><div><div style="font-weight:bold; margin-bottom:2px">${title}</div><div style="font-size:0.85rem; opacity:0.8">${msg}</div></div>`;
+      box.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add("hide");
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+  </script>
+
+</body>
+
+</html>

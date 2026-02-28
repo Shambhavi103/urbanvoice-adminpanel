@@ -1,0 +1,2523 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $json.body.complaint.text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "has_image",
+              "value": "={{ $json.body.attachments?.images?.length > 0 ? true : false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "id-3",
+              "name": "has_audio",
+              "value": "={{ $json.body.attachments?.audio?.base64 ? true : false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "id-4",
+              "name": "has_video",
+              "value": "={{ $json.body.attachments?.videos?.length > 0 ? true : false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "id-5",
+              "name": "image_base64",
+              "value": "={{ $json.body.attachments?.images?.[0]?.base64 || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "audio_base64",
+              "value": "={{ $json.body.attachments?.audio?.base64 || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "video_base64",
+              "value": "={{ $json.body.attachments?.videos?.[0]?.base64 || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "443abb85-257c-41fc-97ef-54ef261eff5e",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "d8ad4d87-0621-4518-a3c8-a7a3bf6cc68f",
+      "name": "Transcribe Audio with Whisper",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        752
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xrWDSj1qPhBC2lqh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $('Workflow Configuration').item.json.complaint_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "image_description",
+              "value": "={{ $('Process Image with Vision1').item.json.message || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "audio_transcript",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "video_summary",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "a38749c6-884f-4f7d-a4e0-f51bc3bc7cec",
+              "name": "[0].content[0].text",
+              "value": "={{ $json[0].content[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "35d74337-3931-4348-9c3f-eb89ef3b576b",
+      "name": "Merge Image Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $('Workflow Configuration').item.json.complaint_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "image_description",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "audio_transcript",
+              "value": "={{ $json.text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "video_summary",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "final_combined_text",
+              "value": "=Complaint: {{ $('Workflow Configuration').item.json.complaint_text || 'No text provided' }}\n\nAudio Transcript: {{ $json.text || 'No audio' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bfd812df-dae7-428c-8bd2-bbf00014a7d1",
+      "name": "Merge Audio Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $('Workflow Configuration').item.json.complaint_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "image_description",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "audio_transcript",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "video_summary",
+              "value": "={{ $json.text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "final_combined_text",
+              "value": "=Complaint: {{ $('Workflow Configuration').item.json.complaint_text || 'No text provided' }}\n\nVideo Audio Transcript: {{ $json.text || 'No video' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38da837b-7f74-4a7d-abad-6f096658a8e6",
+      "name": "Merge Video Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $json.complaint_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "image_description",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "audio_transcript",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "video_summary",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "final_combined_text",
+              "value": "={{ 'Complaint: ' + ($json.complaint_text || 'No complaint text provided') }}",
+              "type": "string"
+            },
+            {
+              "id": "72c130fc-68cd-4ce1-b9f9-240bb1f4efcf",
+              "name": "address",
+              "value": "={{ $json.body.complaint.address }}",
+              "type": "string"
+            },
+            {
+              "id": "c4573915-a282-42bf-8163-6c2a28644bf7",
+              "name": "registration id",
+              "value": "={{ $json[\"registration id\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6ca5099b-84ba-449f-957e-8641328fd063",
+      "name": "Prepare Text Only",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_text",
+              "value": "={{ $json.complaint_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "image_description",
+              "value": "={{ $json.image_description || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "audio_transcript",
+              "value": "={{ $json.audio_transcript || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "video_summary",
+              "value": "={{ $json.video_summary || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "final_combined_text",
+              "value": "={{ $json.final_combined_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "fdaa2c13-253e-4742-a1b9-7c9ec739f715",
+              "name": "address",
+              "value": "={{ $json.address }}",
+              "type": "string"
+            },
+            {
+              "id": "989e77de-74d7-4d92-b572-8c7a2f17b4d9",
+              "name": "registration id",
+              "value": "={{ $json[\"registration id\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "14a29bb8-4bb6-402d-a38e-c28cf2392423",
+      "name": "Normalize Data Structure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1408,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.final_combined_text }}{{ $json.address }}{{ $json[\"registration id\"] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI Multimodal Governance Intelligence and Complaint Segregation Officer operating within a National Government Grievance Redressal System similar to CPGRAMS.\n\nYou may receive:\n1. TEXT complaint\n2. IMAGE evidence description\n3. AUDIO transcript\n4. ADDRESS (provided separately in input)\n5 . registration id\n\nYou must analyze ALL available modalities together and produce a deterministic governance routing and action intelligence output.\n\n--------------------------------------------------\nSTRICT SAFETY & DETERMINISM RULES\n\n- Use ONLY the ministries listed below.\n- Do NOT invent ministries, departments, states, districts, or email addresses.\n- Extract location ONLY if explicitly mentioned in input.\n- If location not clearly stated → use \"Location Not Specified\".\n- The ADDRESS provided in the input must be returned EXACTLY as received, without modification, correction, summarization, or inference.\n- If jurisdiction unclear → assign \"Manual Review Required\".\n- Assign ALL relevant authorities without numerical limitation.\n- Do NOT assign speculative or loosely related authorities.\n- Lead authority MUST be one of assigned_authorities.\n- If public_risk_level = \"Critical\" → priority MUST be \"High\".\n- If corruption detected → corruption_flag = true AND priority must be at least \"Medium\".\n- If confidence_score < 0.6 → add tag \"Needs Manual Verification\".\n- authority_email fields MUST remain as empty string \"\".\n- Output STRICT JSON only.\n- No markdown.\n- No explanations outside JSON.\n\n--------------------------------------------------\nMULTIMODAL ANALYSIS RULES\n\n- Combine text, image, and audio before classification.\n- If image provided → analyze infrastructure damage, hazards, corruption indicators, environmental issues.\n- If audio provided → analyze urgency, distress signals, emergency indicators.\n- If modalities conflict → prioritize factual evidence from image and transcript.\n- If some modalities missing → proceed with available inputs.\n2. Extract location:\n\n- Extract state and district from complaint text OR from ADDRESS field.\n- If address contains state/district information, use it.\n- If both text and address contain location, prefer ADDRESS.\n- If no clear state or district found → use \"Location Not Specified\".\n\n\n--------------------------------------------------\nCORE RESPONSIBILITIES\n1 your output or return must also include the registration id\n1. Determine governance_level:\n   - Central\n   - State\n   - District\n   - Multiple Levels\n\n2. Extract location (only if explicitly mentioned):\n   - state\n   - district\n   - If missing → \"Location Not Specified\"\n\n3. Include the ADDRESS field exactly as received in input.\n   - Do NOT modify it.\n   - Do NOT infer missing components.\n   - Do NOT reformat it.\n\n4. Identify ALL relevant authorities.\n   For EACH authority include:\n   - name\n   - level (Central / State / District)\n   - state (if applicable)\n   - district (if applicable)\n   - sub_departments (array)\n   - department_summary\n   - recommended_actions (array of clear actionable steps)\n   - urgency_reason\n   - authority_email (ALWAYS return \"\")\n\n5. Select ONE lead_authority and include:\n   - name\n   - level\n   - state\n   - district\n   - authority_email (ALWAYS return \"\")\n\n6. Generate complaint_summary (clear and professional).\n\n7. Generate issue_breakdown:\n   - root_cause\n   - affected_population\n   - public_risk_level (Low / Moderate / High / Critical)\n   - infrastructure_damage\n   - service_disruption\n   - environmental_impact\n\n8. Assign priority:\n   - High → Public danger, emergency, corruption, law & order\n   - Medium → Service disruption, financial loss\n   - Low → Minor inconvenience\n\n9. Detect corruption:\n   - corruption_flag = true if bribery, fraud, misconduct indicated.\n   - If true → add tag \"Vigilance Review\"\n\n10. Generate classification tags (short keywords only).\n\n11. Provide confidence_score between 0 and 1.\n\n--------------------------------------------------\nAVAILABLE CENTRAL MINISTRIES & SUB-DEPARTMENTS\n(ONLY THESE MAY BE USED)\n\n1. Ministry of Home Affairs\n   - Police & Law Enforcement\n   - Cyber Crime\n   - Internal Security\n   - Disaster Management\n\n2. Ministry of Road Transport & Highways\n   - Highway Maintenance\n   - Traffic Violations\n   - Driving License / RTO Issues\n   - Vehicle Registration\n\n3. Ministry of Health & Family Welfare\n   - Government Hospitals\n   - Public Health Schemes\n   - Medical Negligence\n   - Drug Regulation\n\n4. Ministry of Education\n   - School Education\n   - Higher Education\n   - Scholarships\n   - Examination Boards\n\n5. Ministry of Consumer Affairs\n   - Consumer Complaints\n   - Food Safety\n   - Public Distribution System\n   - Price Monitoring\n\n6. Ministry of Housing & Urban Affairs\n   - Water Supply\n   - Sewage & Drainage\n   - Garbage Collection\n   - Urban Infrastructure\n\n7. Ministry of Power\n   - Electricity Supply\n   - Billing Issues\n   - Power Outages\n   - Infrastructure Damage\n\n8. Ministry of Railways\n   - Ticketing Issues\n   - Railway Cleanliness\n   - Staff Behavior\n   - Safety Concerns\n\n--------------------------------------------------\nINPUT DATA\n\nTEXT:\n{{ $json.text }}\n\nIMAGE_DESCRIPTION:\n{{ $json.image_description }}\n\nAUDIO_TRANSCRIPT:\n{{ $json.audio_transcript }}\n\nADDRESS:\n{{ $json.address }}\n\nregistration id\n{{ $json[\"registration id\"] }}\n\n--------------------------------------------------\nRETURN STRICT JSON STRUCTURE\n\n{  \n\"registration id\": \n\"\",\n  \"governance_level\": \"\",\n  \"location\": {\n    \"state\": \"\",\n    \"district\": \"\"\n  },\n  \"address\": \"\",\n  \"complaint_summary\": \"\",\n  \"issue_breakdown\": {\n    \"root_cause\": \"\",\n    \"affected_population\": \"\",\n    \"public_risk_level\": \"\",\n    \"infrastructure_damage\": \"\",\n    \"service_disruption\": \"\",\n    \"environmental_impact\": \"\"\n  },\n  \"lead_authority\": {\n    \"name\": \"\",\n    \"level\": \"\",\n    \"state\": \"\",\n    \"district\": \"\",\n    \"authority_email\": \"\"\n  },\n  \"assigned_authorities\": [\n    {\n      \"name\": \"\",\n      \"level\": \"\",\n      \"state\": \"\",\n      \"district\": \"\",\n      \"sub_departments\": [],\n      \"department_summary\": \"\",\n      \"recommended_actions\": [],\n      \"urgency_reason\": \"\",\n      \"authority_email\": \"\"\n    }\n  ],\n  \"priority\": \"\",\n  \"corruption_flag\": false,\n  \"confidence_score\": \"\",\n  \"tags\": []\n}\n"
+        }
+      },
+      "id": "ba886f7f-c542-4efe-894d-649d28243309",
+      "name": "AI Complaint Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1600,
+        656
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"governance_level\": {\n      \"type\": \"string\",\n      \"description\": \"The level of governance (Central, State, District, Multiple Levels)\"\n    },\n    \"location\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"state\": {\n          \"type\": \"string\",\n          \"description\": \"State name or 'Location Not Specified'\"\n        },\n        \"district\": {\n          \"type\": \"string\",\n          \"description\": \"District name or 'Location Not Specified'\"\n        }\n      },\n      \"required\": [\"state\", \"district\"]\n    },\n    \"complaint_summary\": {\n      \"type\": \"string\",\n      \"description\": \"Clear, professional, concise summary of the complaint\"\n    },\n    \"issue_breakdown\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"root_cause\": {\n          \"type\": \"string\",\n          \"description\": \"Root cause of the issue\"\n        },\n        \"affected_population\": {\n          \"type\": \"string\",\n          \"description\": \"Description of affected population\"\n        },\n        \"public_risk_level\": {\n          \"type\": \"string\",\n          \"description\": \"Risk level: Low, Moderate, High, or Critical\"\n        },\n        \"infrastructure_damage\": {\n          \"type\": \"string\",\n          \"description\": \"Description of infrastructure damage\"\n        },\n        \"service_disruption\": {\n          \"type\": \"string\",\n          \"description\": \"Description of service disruption\"\n        },\n        \"environmental_impact\": {\n          \"type\": \"string\",\n          \"description\": \"Description of environmental impact\"\n        }\n      },\n      \"required\": [\"root_cause\", \"affected_population\", \"public_risk_level\", \"infrastructure_damage\", \"service_disruption\", \"environmental_impact\"]\n    },\n    \"lead_authority\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"name\": {\n          \"type\": \"string\",\n          \"description\": \"Name of the lead authority\"\n        },\n        \"level\": {\n          \"type\": \"string\",\n          \"description\": \"Level: Central, State, or District\"\n        },\n        \"state\": {\n          \"type\": \"string\",\n          \"description\": \"State if applicable\"\n        },\n        \"district\": {\n          \"type\": \"string\",\n          \"description\": \"District if applicable\"\n        }\n      },\n      \"required\": [\"name\", \"level\"]\n    },\n    \"assigned_authorities\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Authority name\"\n          },\n          \"level\": {\n            \"type\": \"string\",\n            \"description\": \"Level: Central, State, or District\"\n          },\n          \"state\": {\n            \"type\": \"string\",\n            \"description\": \"State if applicable\"\n          },\n          \"district\": {\n            \"type\": \"string\",\n            \"description\": \"District if applicable\"\n          },\n          \"sub_departments\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            },\n            \"description\": \"List of relevant sub-departments\"\n          },\n          \"department_summary\": {\n            \"type\": \"string\",\n            \"description\": \"Issue summary relevant to this authority\"\n          },\n          \"recommended_actions\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            },\n            \"description\": \"List of recommended actions\"\n          },\n          \"urgency_reason\": {\n            \"type\": \"string\",\n            \"description\": \"Reason why this authority must act\"\n          }\n        },\n        \"required\": [\"name\", \"level\", \"sub_departments\", \"department_summary\", \"recommended_actions\", \"urgency_reason\"]\n      }\n    },\n    \"priority\": {\n      \"type\": \"string\",\n      \"description\": \"Priority level: High, Medium, or Low\"\n    },\n    \"corruption_flag\": {\n      \"type\": \"boolean\",\n      \"description\": \"True if corruption or misconduct is detected\"\n    },\n    \"confidence_score\": {\n      \"type\": \"number\",\n      \"description\": \"Confidence score between 0 and 1\"\n    },\n    \"tags\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"description\": \"Classification tags\"\n    }\n  },\n  \"required\": [\"governance_level\", \"location\", \"complaint_summary\", \"issue_breakdown\", \"lead_authority\", \"assigned_authorities\", \"priority\", \"corruption_flag\", \"confidence_score\", \"tags\"]\n}",
+        "autoFix": true
+      },
+      "id": "c743e5e8-53d8-400b-95f4-43e3904a7d56",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1728,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "bdfe4e1b-64a9-4e51-af2a-e42d1f677144",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1504,
+        1008
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xrWDSj1qPhBC2lqh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Analyze this image from a customer complaint. Describe what you see, identify any issues or problems visible in the image, and extract key details that would help understand the complaint.",
+        "inputType": "base64",
+        "options": {
+          "detail": "high"
+        }
+      },
+      "id": "6ab175c7-ca81-4739-8345-50b2fd8f21f2",
+      "name": "Process Image with Vision1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        560
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xrWDSj1qPhBC2lqh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "complaint",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -848,
+        688
+      ],
+      "id": "70fa9ad6-6159-4448-9814-0daf391acb89",
+      "name": "Webhook",
+      "webhookId": "0d548231-0c0f-47a2-b861-4eb50306f3b3"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.assigned_authorities",
+        "options": {}
+      },
+      "id": "73919908-c3b9-455f-9aad-7b7070267b39",
+      "name": "Split Authorities",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "email_subject",
+              "value": "={{ '[' + $('AI Complaint Analyzer').first().json.output.priority + ' Priority] Complaint: ' + $('AI Complaint Analyzer').first().json.output.complaint_summary }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "email_body_html",
+              "value": "=<html>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;\">\n    <h2 style=\"color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;\">Complaint Assignment</h2>\n    \n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Authority Details</h3>\n      <table style=\"width: 100%; border-collapse: collapse;\">\n        <tr>\n          <td style=\"padding: 8px; font-weight: bold; width: 40%;\">Authority Name:</td>\n          <td style=\"padding: 8px;\">{{ $json.name }}</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n          <td style=\"padding: 8px; font-weight: bold;\">Level:</td>\n          <td style=\"padding: 8px;\">{{ $json.level }}</td>\n        </tr>\n        <tr>\n          <td style=\"padding: 8px; font-weight: bold;\">State:</td>\n          <td style=\"padding: 8px;\">{{ $json.state || 'N/A' }}</td>\n        </tr>\n        <tr style=\"background-color: #f8f9fa;\">\n          <td style=\"padding: 8px; font-weight: bold;\">District:</td>\n          <td style=\"padding: 8px;\">{{ $json.district || 'N/A' }}</td>\n        </tr>\n      </table>\n    </div>\n\n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Sub-Departments</h3>\n      <p style=\"background-color: #ecf0f1; padding: 10px; border-radius: 3px;\">{{ $json.sub_departments.join(', ') }}</p>\n    </div>\n\n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Department Summary</h3>\n      <p style=\"background-color: #ecf0f1; padding: 10px; border-radius: 3px;\">{{ $json.department_summary }}</p>\n    </div>\n\n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Recommended Actions</h3>\n      <ul style=\"background-color: #ecf0f1; padding: 15px 15px 15px 35px; border-radius: 3px;\">\n        {{ $json.recommended_actions.map(action => '<li>' + action + '</li>').join('') }}\n      </ul>\n    </div>\n\n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Urgency Reason</h3>\n      <p style=\"background-color: #fff3cd; padding: 10px; border-radius: 3px; border-left: 4px solid #ffc107;\">\n        <strong>{{ $json.urgency_reason }}</strong>\n      </p>\n    </div>\n\n    <div style=\"margin: 20px 0;\">\n      <h3 style=\"color: #34495e;\">Complaint Details</h3>\n      <p style=\"background-color: #ecf0f1; padding: 10px; border-radius: 3px;\">{{ $('AI Complaint Analyzer').first().json.output.complaint_summary }}</p>\n    </div>\n\n    <div style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #7f8c8d;\">\n      <p>This is an automated complaint routing notification. Please take appropriate action as per the recommended steps.</p>\n    </div>\n  </div>\n</body>\n</html>\n",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "authority_name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "authority_level",
+              "value": "={{ $json.level }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "authority_email",
+              "value": "={{ $json['authorities emails'] || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "930c3c87-59f3-420f-b891-3ffec4b6dd15",
+      "name": "Prepare Email Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2704,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.authority_email.split(',').map(email => email.trim()).join(',') }}",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body_html }}",
+        "options": {
+          "bccList": "",
+          "ccList": ""
+        }
+      },
+      "id": "4c1b5c97-ecf2-44f9-a08d-ab07a262fbcc",
+      "name": "Send Email to Authority",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2928,
+        688
+      ],
+      "webhookId": "427c0292-0126-47de-a046-28474a9abf6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "muDeGwypQbSWdRRP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "a9295472-751b-4485-a4be-27f6886ba136",
+      "name": "Process Video",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        944
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xrWDSj1qPhBC2lqh",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "image_base64",
+        "options": {
+          "fileName": "={{ $json.body.attachments.images[0].filename || 'image.jpg' }}",
+          "mimeType": "={{ $json.body.attachments.images[0].mimeType || 'image/jpeg' }}"
+        }
+      },
+      "id": "7b6130dd-b897-42e9-aac9-4db9deee9c9c",
+      "name": "Convert Image to Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "audio_base64",
+        "options": {
+          "fileName": "={{ $json.body.attachments.audio.filename || 'audio.mp3' }}",
+          "mimeType": "={{ $json.body.attachments.audio.mimeType || 'audio/mpeg' }}"
+        }
+      },
+      "id": "2497f52f-4735-42ab-b58c-8c1c6130ad80",
+      "name": "Convert Audio to Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "video_base64",
+        "options": {
+          "fileName": "={{ $json.body.attachments.videos[0].filename || 'video.mp4' }}",
+          "mimeType": "={{ $json.body.attachments.videos[0].mimeType || 'video/mp4' }}"
+        }
+      },
+      "id": "fc76928b-8503-4e62-9bff-c3ff4866a2b5",
+      "name": "Convert Video to Binary",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Dc-lw-uc6HLmMsf_tuqcjdUrlg49ej8p30h8C-OQ56w",
+          "mode": "list",
+          "cachedResultName": "ministry list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dc-lw-uc6HLmMsf_tuqcjdUrlg49ej8p30h8C-OQ56w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Dc-lw-uc6HLmMsf_tuqcjdUrlg49ej8p30h8C-OQ56w/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "authorities ",
+              "lookupValue": "={{ $json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "17fa8d95-e1a6-4258-a0f0-1bed6ceabe8e",
+      "name": "Get Authority Emails",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2256,
+        832
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "be951855-c39f-43d1-834f-e062e81487e6",
+      "name": "Merge Authority Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2464,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "21ee51e1-334c-4cd8-9228-f1656e5a527f",
+              "leftValue": "={{ $json.labelIds }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3152,
+        704
+      ],
+      "id": "c4c49c12-957e-4dc4-a25a-9b1973761920",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "complaint_id",
+              "value": "={{ $now.format('yyyyMMddHHmmss') }}-{{ Math.random().toString(36).substring(2, 8).toUpperCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "user_name",
+              "value": "={{ $json.body.user.name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "user_mobile",
+              "value": "={{ $json.body.user.mobile }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "complaint_text",
+              "value": "={{ $json.body.complaint.text }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "complaint_address",
+              "value": "={{ $json.body.complaint.address }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "complaint_language",
+              "value": "={{ $json.body.complaint.language }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "37e8ec5d-def8-4d42-9277-74c78a4c1ccf",
+      "name": "Generate Unique ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -656,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "Complaint ID",
+              "value": "={{ $json.complaint_id }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "Timestamp",
+              "value": "={{ $json.timestamp }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "User Name",
+              "value": "={{ $json.user_name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "User Mobile",
+              "value": "={{ $json.user_mobile }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "Complaint Text",
+              "value": "={{ $json.complaint_text }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "Address",
+              "value": "={{ $json.complaint_address }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "Language",
+              "value": "={{ $json.complaint_language }}",
+              "type": "string"
+            },
+            {
+              "id": "id-8",
+              "name": "Status",
+              "value": "Submitted",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8241f57a-e9a8-4038-bba9-c0a8ee8a85f4",
+      "name": "Prepare Sheet Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI",
+          "mode": "list",
+          "cachedResultName": "complaint register",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "registration id": "={{ $json[\"Complaint ID\"] }}",
+            "name": "={{ $json[\"User Name\"] }}",
+            " phone number": "={{ $json[\"User Mobile\"] }}",
+            "address": "={{ $json.Address }}",
+            "text complaint": "={{ $json[\"Complaint Text\"] }}",
+            "gmail": "={{ $('Webhook').item.json.body.user.gmail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sl no.",
+              "displayName": "sl no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration id",
+              "displayName": "registration id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gmail",
+              "displayName": "gmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " phone number",
+              "displayName": " phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "text complaint",
+              "displayName": "text complaint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "565bd60d-5e1b-42b8-a878-597bfbbb11e2",
+      "name": "Store Complaint in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -176,
+        272
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"complaint_id\": $('Generate Unique ID').item.json.complaint_id, \"message\": \"Your complaint has been submitted successfully. Please save this ID for tracking.\", \"timestamp\": $('Generate Unique ID').item.json.timestamp } }}",
+        "options": {}
+      },
+      "id": "a5c10502-3732-4e28-ae84-87a4d20f7c5c",
+      "name": "Return Complaint ID",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3696,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "64246f75-cf38-445c-bf61-49316900ad38",
+      "name": "Merge Authority Data1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        16,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Store Complaint in Sheets').item.json.gmail }}",
+        "subject": "regarding submission of your complaint",
+        "emailType": "text",
+        "message": "=your registration id is {{ $('Store Complaint in Sheets').item.json[\"registration id\"] }} use this id  to track the status of your complaint",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3392,
+        288
+      ],
+      "id": "d3f9f915-4dbd-44e1-9c87-00cd78fa8261",
+      "name": "Send a message",
+      "webhookId": "857a7807-f011-48d1-a65d-2b6a5a4b7b00",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "muDeGwypQbSWdRRP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "f429cc0d-29ef-429b-8d7d-eb9c54f4d28e",
+              "leftValue": "={{ $json.image_base64 }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "710afd07-d59b-490d-8503-63aeede21d7f",
+      "name": "IF Image Exists1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        464,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.audio_base64 }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fce2d81d-c06e-4a11-9b7f-d2556bda127b",
+      "name": "IF Audio Exists1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        464,
+        752
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.video_base64 }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cd004378-228a-4a28-b129-9956bf94cab1",
+      "name": "IF Video Exists1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        464,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.complaint_text }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fa631645-407b-45b9-9c5b-2e2d0a2ea134",
+      "name": "IF Text Exists1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        464,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI",
+          "mode": "list",
+          "cachedResultName": "complaint register",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "registration id": "={{ $('Generate Unique ID').item.json.complaint_id }}",
+            "status": "submitted",
+            "authorities": "={{ $('Prepare Email Content').item.json.authority_name }}"
+          },
+          "matchingColumns": [
+            "registration id"
+          ],
+          "schema": [
+            {
+              "id": "sl no.",
+              "displayName": "sl no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "registration id",
+              "displayName": "registration id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gmail",
+              "displayName": "gmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " phone number",
+              "displayName": " phone number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "text complaint",
+              "displayName": "text complaint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "authorities",
+              "displayName": "authorities",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3376,
+        608
+      ],
+      "id": "8bf77407-f49e-41b4-9531-820a8b90f6b9",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI",
+          "mode": "list",
+          "cachedResultName": "complaint register",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "be4c1372-f7f0-4795-b05f-8ab0288793bc",
+      "name": "Read Complaint Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1024,
+        -128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const grouped = {};\n\nfor (const item of items) {\n  const place = item.json.address || 'Unknown';\n  const problem = item.json['text complaint'] || 'Unknown';\n  const key = `${place}|||${problem}`;\n  \n  if (!grouped[key]) {\n    grouped[key] = {\n      place,\n      problem,\n      count: 0\n    };\n  }\n  \n  grouped[key].count++;\n}\n\nreturn Object.values(grouped).map(g => ({ json: g }));"
+      },
+      "id": "e887b557-90ad-4228-9def-706ba1c4384b",
+      "name": "Group and Count Problems",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "problem",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "id": "70e9f3a4-93ee-433f-be7f-21ee53e97bd3",
+      "name": "Split Grouped Data",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        -224
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6d37d37c-0bdc-4d7b-96b4-b2ab42a9bdb6",
+      "name": "Filter Count > 15",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -352,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "email_subject",
+              "value": "={{ 'Repeated Complaint Alert – ' + $json.problem + ' at ' + $json.place }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "email_body",
+              "value": "={{ 'The issue \\'' + $json.problem + '\\' has been reported ' + $json.count + ' times at \\'' + $json.place + '\\'. Immediate action is required.' }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "place",
+              "value": "={{ $json.place }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "problem",
+              "value": "={{ $json.problem }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "count",
+              "value": "={{ $json.count }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "648ab483-248d-4184-b1cd-392530ec2d1a",
+      "name": "Prepare Alert Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -128,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "gangalsagar5@gmail.com",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "text",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "e4afe05f-68b2-4ae5-aec0-371f836728b1",
+      "name": "Send Alert Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -208
+      ],
+      "webhookId": "33bcd0a1-5c0c-442b-b7b6-4b0c2d08d5b8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "muDeGwypQbSWdRRP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let solved = 0;\nlet notSolved = 0;\n\nfor (const item of items) {\n  const status = (item.json.status || '').toLowerCase();\n  if (status === 'solved' || status === 'resolved' || status === 'completed') {\n    solved++;\n  } else if (status === 'submitted' || status === 'pending' || status === 'not solved') {\n    notSolved++;\n  }\n}\n\nreturn [{\n  json: {\n    solved_count: solved,\n    not_solved_count: notSolved,\n    total_complaints: items.length,\n    summary: `Total: ${items.length}, Solved: ${solved}, Not Solved: ${notSolved}`\n  }\n}];"
+      },
+      "id": "a6488fb9-170e-4596-bb01-a654ffedb573",
+      "name": "Count Status Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "summary_subject",
+              "value": "Complaint Status Summary Report",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "summary_body",
+              "value": "={{ 'Complaint Status Summary:\\n\\nTotal Complaints: ' + $json.total_complaints + '\\nSolved: ' + $json.solved_count + '\\nNot Solved: ' + $json.not_solved_count + '\\n\\nGenerated on: ' + $now.format('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "solved_count",
+              "value": "={{ $json.solved_count }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "not_solved_count",
+              "value": "={{ $json.not_solved_count }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "total_complaints",
+              "value": "={{ $json.total_complaints }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7511a923-c15b-43a6-aec7-b3c2e7443c1c",
+      "name": "Prepare Summary Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "gangalsagar5@gmail.com",
+        "subject": "={{ $json.summary_subject }}",
+        "emailType": "text",
+        "message": "={{ $json.summary_body }}",
+        "options": {}
+      },
+      "id": "ff18e001-d41f-4d8f-8e39-d5974542813c",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -352,
+        -32
+      ],
+      "webhookId": "b92a0af3-3952-4ccd-856a-770e7ad87688",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "muDeGwypQbSWdRRP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "f010c07a-99de-4a61-8e20-e2cf2940dba3",
+      "name": "Schedule Analysis",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1248,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1pJMVn6L3Smo28GDtJTk4Yb3U7e8XTFqjqsefluodj6c",
+          "mode": "list",
+          "cachedResultName": "repeated issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pJMVn6L3Smo28GDtJTk4Yb3U7e8XTFqjqsefluodj6c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1pJMVn6L3Smo28GDtJTk4Yb3U7e8XTFqjqsefluodj6c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "issue": "={{ $('Prepare Alert Email').item.json.problem }}",
+            "place": "={{ $('Prepare Alert Email').item.json.place }}",
+            "number of counts": "={{ $('Split Grouped Data').item.json.count }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sl no. ",
+              "displayName": "sl no. ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue",
+              "displayName": "issue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "authorities responsible",
+              "displayName": "authorities responsible",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "place",
+              "displayName": "place",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "number of counts",
+              "displayName": "number of counts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        -224
+      ],
+      "id": "f1f496f1-dc9b-4715-a8c0-6cc0aed347f2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "check-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "c78b2060-2c94-4b87-9326-4121a238582e",
+      "name": "Status Check Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        896,
+        -112
+      ],
+      "webhookId": "93197f83-b71d-4e35-ae71-b027da6d0217"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI",
+          "cachedResultName": "complaint register",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gErUTlm9iyoSwGWmilXUDYroh3TRurCPXKJrIUR9BKI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "registration id",
+              "lookupValue": "={{ $json.body.registrationId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1716bac1-822d-40ca-adaa-eaa1feb06eca",
+      "name": "Read All Complaint Records",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        -112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "w45D842a8joACXx9",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "registration_id",
+              "value": "={{ $json['registration id'] }}",
+              "type": "string"
+            },
+            {
+              "id": "39965089-8dce-4c58-bf60-2ce8199b2505",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3acdae77-4781-4ec5-9c4c-579c9ae350cd",
+      "name": "Prepare AI Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1664,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c8b4edf2-2371-41a4-9b4d-8e907f11f795",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "submitted",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        -320
+      ],
+      "id": "34728301-4175-4a0c-a27b-a8295b759810",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"submitted\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1904,
+        -336
+      ],
+      "id": "8254c43a-1a83-4d42-b4f8-1d96282a6016",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c369c8af-b777-4ea5-a931-9a840fca83ee",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ongoing",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        -112
+      ],
+      "id": "9b368eba-d424-460e-8e7d-9646119f323b",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "32a667c7-10ce-4506-9dde-14067f7d09f4",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "resolved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        80
+      ],
+      "id": "fb418ae8-864d-40de-bd2b-f3b65d2052ab",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "registration_id",
+              "value": "={{ $json['registration id'] }}",
+              "type": "string"
+            },
+            {
+              "id": "39965089-8dce-4c58-bf60-2ce8199b2505",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4f11dc9-2b29-4361-aecf-1952c43e4631",
+      "name": "Prepare AI Input1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1776,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"ongoing\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2224,
+        -176
+      ],
+      "id": "7a5d4344-f191-425b-b7c7-04d52a3bae50",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "registration_id",
+              "value": "={{ $json['registration id'] }}",
+              "type": "string"
+            },
+            {
+              "id": "39965089-8dce-4c58-bf60-2ce8199b2505",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5bab6eb0-80f9-4e99-9ea6-89036d438a80",
+      "name": "Prepare AI Input2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"resolved\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2192,
+        16
+      ],
+      "id": "9389d23c-44ab-4211-8a2f-55ec06890a62",
+      "name": "Respond to Webhook2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "IF Image Exists1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Audio Exists1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Video Exists1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Text Exists1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio with Whisper": {
+      "main": [
+        [
+          {
+            "node": "Merge Audio Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Image Data": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Audio Data": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video Data": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Text Only": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data Structure": {
+      "main": [
+        [
+          {
+            "node": "AI Complaint Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Complaint Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Split Authorities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Complaint Analyzer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Complaint Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Image with Vision1": {
+      "main": [
+        [
+          {
+            "node": "Merge Image Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate Unique ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Authority Data1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Split Authorities": {
+      "main": [
+        [
+          {
+            "node": "Get Authority Emails",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Authority Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Content": {
+      "main": [
+        [
+          {
+            "node": "Send Email to Authority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email to Authority": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Video": {
+      "main": [
+        [
+          {
+            "node": "Merge Video Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Image to Binary": {
+      "main": [
+        [
+          {
+            "node": "Process Image with Vision1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Audio to Binary": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio with Whisper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Video to Binary": {
+      "main": [
+        [
+          {
+            "node": "Process Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Authority Emails": {
+      "main": [
+        [
+          {
+            "node": "Merge Authority Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Authority Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Unique ID": {
+      "main": [
+        [
+          {
+            "node": "Prepare Sheet Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sheet Data": {
+      "main": [
+        [
+          {
+            "node": "Store Complaint in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Complaint in Sheets": {
+      "main": [
+        [
+          {
+            "node": "Merge Authority Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Authority Data1": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Return Complaint ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Image Exists1": {
+      "main": [
+        [
+          {
+            "node": "Convert Image to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Audio Exists1": {
+      "main": [
+        [
+          {
+            "node": "Convert Audio to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Video Exists1": {
+      "main": [
+        [
+          {
+            "node": "Convert Video to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Text Exists1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Text Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Return Complaint ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Complaint Data": {
+      "main": [
+        [
+          {
+            "node": "Group and Count Problems",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Count Status Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group and Count Problems": {
+      "main": [
+        [
+          {
+            "node": "Split Grouped Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Grouped Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Count > 15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Count > 15": {
+      "main": [
+        [
+          {
+            "node": "Prepare Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Alert Email": {
+      "main": [
+        [
+          {
+            "node": "Send Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Status Summary": {
+      "main": [
+        [
+          {
+            "node": "Prepare Summary Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Summary Output": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Analysis": {
+      "main": [
+        [
+          {
+            "node": "Read Complaint Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Alert Email": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Check Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read All Complaint Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read All Complaint Records": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Input": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Prepare AI Input1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Input2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Input2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "31dff1df-5b65-4473-a035-292cdff3eb9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f7c1ba0cf92c8c2d59a78cf8e32e987f502870bf9f8302a0e6c9256510923a0f"
+  },
+  "id": "zAIQ8TBvpoD1QWQX",
+  "tags": []
+}
